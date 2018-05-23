@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.wmnews.dao.WmNewsDao">
+    
+	<sql id="wmNewsColumns">
+		a.id AS "id",
+		a.content AS "content",
+		a.title AS "title",
+		
+		a.sender AS "sender",
+		
+		
+		a.create_date AS "createDate",
+		a.create_by AS "createBy.id",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag" 
+		
+	</sql>
+	
+	<sql id="wmNewsJoins">
+	</sql>
+    
+
+	
+	
+	
+	<select id="get" resultType="WmNews">
+		SELECT 
+			a.*  
+		FROM  wm_news a 
+		
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="WmNews">
+	
+	
+SELECT  a.messageid   as sss ,a.messageid ,a.title,a.content,a.sender,a.create_date, b.user,b.status,b.id FROM  wm_news a LEFT JOIN wm_news_receiver b ON a.id = b.newsid 
+
+		
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		
+				<if test="title != null and title != ''">
+			AND a.title like '%${title}%' 
+			
+		</if>
+		<if test="user != null and user != ''">
+			AND b.user = '${user}' 
+			
+		</if>
+		
+		<if test="status != null and status != ''">
+			AND b.status = '${status}' 
+			
+		</if>
+		
+		 <if test="start != null and start != ''">
+			AND a.create_date &gt;='${start}' AND a.create_date &lt;='${end}'
+			   
+		</if>
+		<if test="sender != null and sender != ''">
+				AND a.sender = #{sender} 
+			</if>
+		</where>
+		 GROUP BY sss
+		<choose>
+			<when test="field !=null  and field != '' ">
+				ORDER BY ${field}  ${order}
+			</when>
+			<!-- <when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when> -->
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+		<if test="layuiPage!=null and layuiPage!='' and layuiLimit!=null and layuiLimit!=''">
+			LIMIT ${layuiPage},${layuiLimit}		
+		</if> 
+	</select>
+	
+	<select id="findAllList" resultType="WmNews">
+		SELECT 
+			<include refid="wmNewsColumns"/>
+		FROM wm_news a
+		<include refid="wmNewsJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO wm_news(
+			id,
+			content,
+			title,
+			
+			sender,
+			
+			
+			create_date,
+			create_by,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+			
+		) VALUES (
+			#{id},
+			#{content},
+			#{title},
+			
+			#{sender},
+			
+			
+			#{createDate},
+			#{createBy.id},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE wm_news SET 	
+			content = #{content},
+			title = #{title},
+			receiver = #{receiver},
+			sender = #{sender},
+			
+			
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE wm_news SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<select id="sumcount" resultType="Integer">
+	
+
+	SELECT COUNT(*) FROM (SELECT  a.messageid  as sss    , b.user,b.id  FROM  wm_news a LEFT JOIN wm_news_receiver b ON a.id = b.newsid 
+
+	<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		
+			
+			
+					<if test="title != null and title != ''">
+			AND a.title like '%${title}%' 
+			
+		</if>
+				<if test="user != null and user != ''">
+			AND b.user = '${user}' 
+			
+		</if>
+		
+		 <if test="start != null and start != ''">
+			AND a.create_date &gt;='${start}' AND a.create_date &lt;='${end}'
+			   
+		</if>
+			<if test="sender != null and sender != ''">
+				AND a.sender = #{sender} 
+			</if>
+		</where>
+		 GROUP BY sss ) c
+		
+	</select>
+	
+		<select id="findslinfo" resultType="WmNews"  parameterType="WmNews">
+		SELECT  a.messageid  ,a.title,a.content ,a.sender ,a.create_date as time, b.id,b.user,b.newsid,b.status,b.replaycontent,
+		 b.create_date as create_date  ,b.update_date  FROM wm_news a RIGHT JOIN wm_news_receiver b  ON a.id =b.newsid  
+		<where>
+		
+			 
+            and a.id = #{id}
+        
+			   
+		
+		</where>
+			 
+	</select>
+	
+	
+	<select id="findSumCountdetail" resultType="Integer"  parameterType="WmNews">
+		SELECT COUNT(*) FROM (SELECT a.id   FROM  wm_news a RIGHT JOIN wm_news_receiver b ON a.id = b.newsid 
+		
+		
+		 
+		
+		<where>
+		 
+			
+            and a.id =#{id}
+        
+			   
+		
+		
+		</where>
+		 ) c
+	</select>
+	
+	
+	<select id="findnewss" resultType="WmNews" parameterType="WmNews">
+		SELECT id 
+			
+		FROM wm_news a
+		
+		WHERE a.content =#{content}  and a.title=#{title}  and a.sender =#{sender} 
+	</select>
+	
+	
+	
+	
+	
+		<select id="findroleidbyuserid" resultType="List" parameterType="java.lang.String">
+		SELECT role_id  
+			
+		FROM  sys_user_role 
+		<where>  
+                   <if test="_parameter != null">  
+                           user_id=#{userid}  
+                   </if>  
+         </where>  
+		
+	</select>
+	
+	
+		<select id="getbymessageid" resultType="WmNews" parameterType="java.lang.String">
+		SELECT * from wm_news a
+			
+		
+		<where>  
+                   <if test="_parameter != null">  
+                          a.messageid=#{messageid}  
+                   </if>  
+         </where>  
+		
+	</select>
+	
+	
+	
+	
+</mapper>

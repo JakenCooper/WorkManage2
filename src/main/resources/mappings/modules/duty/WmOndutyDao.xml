@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.duty.dao.WmOndutyDao">
+    
+	<sql id="wmOndutyColumns">
+		a.id AS "id",
+		a.date AS "date",
+		a.change_time AS "changeTime",
+		a.change_user AS "changeUser",
+		a.onduty_user AS "ondutyUser",
+		a.receive_time AS "receiveTime",
+		a.real_onduty_user AS "realOndutyUser",
+		a.change_status AS "changeStatus",
+		a.leader AS "leader",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.wmDesc AS "wmDesc"
+	</sql>
+	
+	<sql id="wmOndutyJoins">
+		
+	</sql>
+    
+	<select id="get" resultType="WmOnduty">
+		SELECT 
+			<include refid="wmOndutyColumns"/>
+		FROM wm_onduty a
+		<include refid="wmOndutyJoins"/>
+		WHERE a.`onduty_user`=#{ondutyUser} and a.date=#{date}
+		and a.del_flag ='0'
+				
+	</select>
+	
+	<select id="findList" resultType="WmOnduty">
+		SELECT 
+			 <include refid="wmOndutyColumns"/> 
+		FROM wm_onduty a
+		<where>
+			a.del_flag ='0'
+		</where>
+		<if test="field!=null and field!='' and order!=null and order!=null">
+			ORDER BY  #{field} #{order}
+		</if>
+	 	<if test="layuiPage!=null and layuiPage!='' and layuiLimit!=null and layuiLimit!=''">
+			LIMIT ${layuiPage},${layuiLimit}		
+		</if> 
+	</select>
+	
+	<select id="findAllList" resultType="WmOnduty">
+		SELECT 
+			<include refid="wmOndutyColumns"/>
+		FROM wm_onduty a
+		<include refid="wmOndutyJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO wm_onduty(
+			id,
+			date,
+			change_time,
+			change_user,
+			onduty_user,
+			receive_time,
+			real_onduty_user,
+			change_status,
+			leader,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			wmDesc
+		) VALUES (
+			#{id},
+			#{date},
+			#{changeTime},
+			#{changeUser},
+			#{ondutyUser},
+			#{receiveTime},
+			#{realOndutyUser},
+			#{changeStatus},
+			#{leader},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{wmDesc}
+		)
+	</insert>
+	
+	<update id="updateWmOnduty">
+		UPDATE wm_onduty SET 	
+			date = #{date},
+			change_time = #{changeTime},
+			change_user = #{changeUser},
+			onduty_user = #{ondutyUser},
+			receive_time = #{receiveTime},
+			real_onduty_user = #{realOndutyUser},
+			change_status = #{changeStatus},
+			leader = #{leader},
+			remarks = #{remarks}
+		WHERE date=#{date}
+		and onduty_user=#{ondutyUser}
+	</update>
+	
+	<update id="delete">
+		UPDATE wm_onduty SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	<select id="findWmOndutyCount" resultType="Integer">
+		SELECT COUNT(*) FROM wm_onduty where del_flag='0'
+	</select>
+	
+	<select id="findWmOndutyByStatus" resultType="WmOnduty">
+		SELECT w.`change_status` FROM `wm_onduty` w WHERE w.`date`=#{date}  AND w.`onduty_user`=#{ondutyUser}
+	</select>
+</mapper>

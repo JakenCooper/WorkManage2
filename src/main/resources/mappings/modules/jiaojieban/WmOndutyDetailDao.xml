@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.jiaojieban.dao.WmOndutyDetailDao">
+
+	<sql id="wmOndutyDetailColumns">
+		a.id AS "id",
+		a.computerNumber AS "computerNumber",
+		a.faxMachineNumber AS "faxMachineNumber",
+		a.keyNum AS "keyNum",
+		a.zsSysTransStatus AS "zsSysTransStatus",
+		a.zsSysTransStatusRestarTime AS "zsSysTransStatusRestarTime",
+		a.zhuanWangStatus AS "zhuanWangStatus",
+		a.jiFangSafeStatus AS "jiFangSafeStatus",
+		a.leader AS "leader",
+		a.changeUser AS "changeUser",
+		a.ondutyUser AS "ondutyUser",
+		a.jiaoBanTime AS "jiaoBanTime",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.zhiBanTime AS "zhiBanTime"
+	</sql>
+	
+	<sql id="wmOndutyDetailJoins">
+	</sql>
+    
+	<select id="get" resultType="WmOndutyDetail">
+		SELECT 
+			<include refid="wmOndutyDetailColumns"/>
+		FROM wm_onduty_detail a
+		<include refid="wmOndutyDetailJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="WmOndutyDetail">
+		SELECT 
+			<include refid="wmOndutyDetailColumns"/>
+		FROM wm_onduty_detail a
+		<include refid="wmOndutyDetailJoins"/>
+		<where>
+			a.del_flag ='0'
+			<if test="zhiBanTime!=null and zhiBanTime!=''">
+				and zhiBanTime=#{zhiBanTime}
+			</if>
+				<if test="ondutyUser!=null and ondutyUser!=''">
+				and ondutyUser=#{ondutyUser}
+			</if>
+		</where>
+		<if test="field!=null and field!='' and order!=null and order!=null">
+			ORDER BY  #{field} #{order}
+		</if>
+		<if test="layuiPage!=null and layuiPage!='' and layuiLimit!=null and layuiLimit!=''">
+			LIMIT ${layuiPage},${layuiLimit}		
+		</if> 
+	</select>
+	
+	<select id="findAllList" resultType="WmOndutyDetail">
+		SELECT 
+			<include refid="wmOndutyDetailColumns"/>
+		FROM wm_onduty_detail a
+		<include refid="wmOndutyDetailJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO wm_onduty_detail(
+			id,
+			computerNumber,
+			faxMachineNumber,
+			keyNum,
+			zsSysTransStatus,
+			zsSysTransStatusRestarTime,
+			zhuanWangStatus,
+			jiFangSafeStatus,
+			leader,
+			changeUser,
+			ondutyUser,
+			jiaoBanTime,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			zhiBanTime
+		) VALUES (
+			#{id},
+			#{computerNumber},
+			#{faxMachineNumber},
+			#{keyNum},
+			#{zsSysTransStatus},
+			#{zsSysTransStatusRestarTime},
+			#{zhuanWangStatus},
+			#{jiFangSafeStatus},
+			#{leader},
+			#{changeUser},
+			#{ondutyUser},
+			#{jiaoBanTime},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{zhiBanTime}
+		)
+	</insert>
+	
+<!-- 	<update id="upDateWmOndutyDetail">
+		UPDATE wm_onduty_detail SET 	
+			computerNumber = #{computerNumber},
+			faxMachineNumber = #{faxMachineNumber},
+			keyNum = #{keyNum},
+			zsSysTransStatus = #{zsSysTransStatus},
+			zsSysTransStatusRestarTime = #{zsSysTransStatusRestarTime},
+			zhuanWangStatus = #{zhuanWangStatus},
+			jiFangSafeStatus = #{jiFangSafeStatus},
+			leader = #{leader},
+			changeUser = #{changeUser},
+			ondutyUser = #{ondutyUser},
+			jiaoBanTime = #{jiaoBanTime},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE wmOndutyId = #{wmOndutyId}
+	</update> -->
+	
+	<update id="delete">
+		UPDATE wm_onduty_detail SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	<select id="findWmOndutyDetailCount" resultType="Integer">
+		SELECT COUNT(*) FROM wm_onduty_detail
+	</select>
+	<!--获取前一天交班数据  -->
+	<select id="beforeDetailInfo" resultType="WmOndutyDetail">
+		<!-- SELECT *FROM `wm_onduty_detail` wod WHERE wod.`jiaoBanTime` IN(SELECT DATE_SUB(CURDATE(),INTERVAL 1 DAY)) -->
+		SELECT 
+		  <include refid="wmOndutyDetailColumns"/>
+		FROM
+		  `wm_onduty_detail` a 
+		WHERE TRIM(LEFT(a.`jiaoBanTime`, 11)) IN 
+		  (SELECT 
+		    DATE_SUB(CURDATE(), INTERVAL 1 DAY))
+	</select>
+</mapper>

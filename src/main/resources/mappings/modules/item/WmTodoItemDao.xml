@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.item.dao.WmTodoItemDao">
+    
+	<sql id="wmTodoItemColumns">
+		a.id AS "id",
+		a.content AS "content",
+		a.title AS "title",
+		a.operation_type AS "operationType",
+		a.item_type AS "itemType",
+		a.status AS "status",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.isreplay AS "isreplay",
+		a.finishdate AS "finishdate"
+	</sql>
+	
+	<sql id="wmTodoItemJoins">
+	</sql>
+    
+	<select id="get" resultType="WmTodoItem">
+		SELECT 
+			<include refid="wmTodoItemColumns"/>
+		FROM wm_todo_item a
+		<include refid="wmTodoItemJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="WmTodoItem">
+		SELECT *,(CASE WHEN id IN 
+(SELECT item_id FROM wm_user_item WHERE del_flag = #{DEL_FLAG_NORMAL} and user=#{user} AND is_finished='1') THEN 2 
+
+WHEN id IN (SELECT item_id FROM wm_user_item WHERE del_flag = #{DEL_FLAG_NORMAL} and user=#{user} ) THEN 1
+
+ELSE 0 END
+ ) AS showicon  	FROM wm_todo_item a
+		
+		<include refid="wmTodoItemJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL} and MONTH(create_date)= #{month} and YEAR(create_date)=YEAR(NOW())
+		</where>
+		<choose>
+			
+			<when test="field !=null  and field != '' ">
+				ORDER BY ${field}  ${order}
+			</when>
+			<!-- <when test="order!=null and order !=''">
+			    
+			</when> -->
+			
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+		<if test="layuiPage!=null and layuiPage!='' and layuiLimit!=null and layuiLimit!=''">
+			LIMIT ${layuiPage},${layuiLimit}		
+		</if> 
+	
+		 
+			</select>
+	
+	<select id="findAllList" resultType="WmTodoItem">
+		SELECT 
+			<include refid="wmTodoItemColumns"/>
+		FROM wm_todo_item a
+		<include refid="wmTodoItemJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO wm_todo_item(
+			id,
+			content,
+			title,
+			operation_type,
+			item_type,
+			status,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			isreplay,
+			finishdate
+		) VALUES (
+			#{id},
+			#{content},
+			#{title},
+			#{operationType},
+			#{itemType},
+			#{status},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{isreplay},
+			#{finishdate}
+		)
+	</insert>
+	
+	<update id="updateone">
+		UPDATE wm_todo_item SET 	
+			content = #{content},
+			operation_type = #{operationType},
+			item_type = #{itemType},
+			status = #{status},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			title=#{title},
+		   
+		WHERE id = #{id}
+	</update>
+	
+	
+	
+	
+	<update id="delete">
+		UPDATE wm_todo_item SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	<delete id="deleteall" parameterType="list">
+		UPDATE wm_todo_item SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{list}
+	</delete>
+	
+	<select id="sumcounttodoitem" resultType="Integer">
+		SELECT COUNT(*) 
+		FROM wm_todo_item a
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL} and MONTH(create_date)= #{month}
+		</where>		
+		
+	</select>
+	
+	
+	<select id="checkwmcontent" resultType="Integer">
+		SELECT COUNT(*) 
+		FROM wm_todo_item a
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL} and MONTH(create_date)= #{month} and a.content= #{content}
+		</where>		
+		
+	</select>
+	
+</mapper>

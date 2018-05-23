@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.wmnewsreceivers.dao.WmNewsReceiverDao">
+    
+	<sql id="wmNewsReceiverColumns">
+		a.id AS "id",
+		a.user AS "user",
+		a.newsid AS "newsid",
+		a.status AS "status",
+		a.replaycontent AS "replaycontent",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="wmNewsReceiverJoins">
+	</sql>
+    
+	<select id="get" resultType="WmNewsReceiver">
+		SELECT 
+			<include refid="wmNewsReceiverColumns"/>
+		FROM wm_news_receiver a
+		<include refid="wmNewsReceiverJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="WmNewsReceiver">
+		SELECT 
+			<include refid="wmNewsReceiverColumns"/>
+		FROM wm_news_receiver a
+		<include refid="wmNewsReceiverJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="WmNewsReceiver">
+		SELECT 
+			<include refid="wmNewsReceiverColumns"/>
+		FROM wm_news_receiver a
+		<include refid="wmNewsReceiverJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO wm_news_receiver(
+			id,
+			user,
+			newsid,
+			status,
+			replaycontent,
+			create_by,
+			create_date,
+			update_by,
+			<!-- update_date, -->
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{user},
+			#{newsid},
+			#{status},
+			#{replaycontent},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			<!-- #{updateDate}, -->
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="updateone">
+		UPDATE wm_news_receiver SET 	
+			
+			status = #{status},
+			replaycontent = #{replaycontent},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="updatstatus">
+		UPDATE wm_news_receiver SET 	
+			
+			status = #{status}
+			
+		WHERE id = #{id}
+	</update>
+	
+	
+	<update id="delete">
+		UPDATE wm_news_receiver SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	<select id="findwmnews" resultType="WmNewsReceiver">
+		SELECT 
+			a.* 
+		FROM wm_news_receiver a
+	
+		WHERE a.newsid =#{newsid} and a.user=#{user}
+	</select>
+	
+	
+	
+	<select id="finduserlistbynewsid" resultType="WmNewsReceiver">
+		SELECT 
+			a.* 
+		FROM wm_news_receiver a
+	
+		WHERE a.newsid =#{newsid} 
+	</select>
+	
+	
+	<select id="readornot" resultType="Integer">
+	select count(*) from(	SELECT 
+			a.*
+		FROM wm_news_receiver a
+	
+		WHERE a.user=#{user} and status=#{status} ) c
+	</select>
+	
+</mapper>

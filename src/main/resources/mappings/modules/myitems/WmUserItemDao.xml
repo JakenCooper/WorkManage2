@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.myitems.dao.WmUserItemDao">
+    
+	<sql id="wmUserItemColumns">
+		a.id AS "id",
+		a.user AS "user",
+		a.item_id AS "itemId",
+		a.is_finished AS "isFinished",
+		a.handle_type AS "handleType",
+		a.handle_result AS "handleResult",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="wmUserItemJoins">
+	</sql>
+    
+	<select id="get" resultType="WmUserItem">
+		SELECT 
+			a.*,b.content , b.item_type ,b.title ,  DATE_FORMAT(b.finishdate,'%Y-%m-%d')AS finishdate
+		FROM wm_user_item a  left join wm_todo_item b on a.item_id = b.id 
+		<include refid="wmUserItemJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="WmUserItem">
+		SELECT 
+			a.* ,b.content , b.item_type ,b.title ,DATE_FORMAT(b.finishdate,'%Y-%m-%d')AS finishdate
+		FROM wm_user_item a left join wm_todo_item b on a.item_id = b.id 
+		
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL} and a.user=#{user}
+		</where>
+		<if test="content != null and content != ''">
+			AND b.content like '%${content}%' 
+			
+		</if>
+		<if test="title != null and title != ''">
+			AND b.title like '%${title}%' 
+			
+		</if>
+		<if test="itemType != null and itemType != ''">
+			AND b.item_type = '${itemType}' 
+			
+		</if>
+		
+		
+		<if test="isFinished != null and isFinished != ''">
+			AND a.is_finished = '${isFinished}' 
+			
+		</if>
+		
+		 <if test="start != null and start != ''">
+			AND a.create_date &gt;='${start}' AND a.create_date &lt;='${end}'
+			   
+		</if>
+		<!-- <if test="starttime != null and starttime != ''  ">
+			AND a.create_date >= '#{starttime}' AND a.create_date <='#{endtime}'
+			   
+		</if>
+		 -->
+		 
+		
+			<if test="itemId != null and itemId != ''">
+			AND a.item_id =#{itemId}
+			
+		</if>
+		
+		
+		<choose>
+			<when test="field !=null  and field != '' ">
+				ORDER BY ${field}  ${order}
+			</when>
+			
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+		<if test="layuiPage!=null and layuiPage!='' and layuiLimit!=null and layuiLimit!=''">
+			LIMIT ${layuiPage},${layuiLimit}		
+		</if> 
+	</select>
+	
+	<select id="findAllList" resultType="WmUserItem">
+		SELECT 
+			<include refid="wmUserItemColumns"/>
+		FROM wm_user_item a
+		<include refid="wmUserItemJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO wm_user_item(
+			id,
+			user,
+			item_id,
+			is_finished,
+			handle_type,
+			handle_result,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+			
+		) VALUES (
+			#{id},
+			#{user},
+			#{itemId},
+			#{isFinished},
+			#{handleType},
+			#{handleResult},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+			
+		)
+	</insert>
+	
+	<update id="updateone">
+		UPDATE wm_user_item SET 	
+		<!-- 	user = #{user},
+			item_id = #{itemId}, -->
+			is_finished = #{isFinished},
+			handle_type = #{handleType},
+			handle_result = #{handleResult},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE wm_user_item SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+		<select id="sumcount" resultType="Integer">
+		SELECT COUNT(c.ids) 
+		FROM
+		 (select a.id as ids ,b.id from wm_user_item a left join wm_todo_item b on a.item_id = b.id 
+		
+		 
+		 <where>
+			a.del_flag = #{DEL_FLAG_NORMAL} and a.user =#{user}
+		</where>		 
+		
+		<if test="content != null and content != ''">
+			AND b.content like '%${content}%' 
+			
+		</if>
+		<if test="title != null and title != ''">
+			AND b.title like '%${title}%' 
+			
+		</if>
+		<if test="itemType != null and itemType != ''">
+			AND b.item_type = '${itemType}' 
+			
+		</if>
+			<if test="isFinished != null and isFinished != ''">
+			AND a.is_finished = '${isFinished}' 
+			
+		</if>
+		<!-- <if test="starttime != null and starttime != '' and endtime!= null and endtime != '' ">
+			AND a.create_date >= '${starttime}' AND a.create_date<='${endtime}'
+			   
+		</if> -->
+	 <if test="start != null and start != ''">
+			AND a.create_date &gt;='${start}' AND a.create_date &lt;='${end}'
+			   
+		</if>
+		
+		) c
+	</select>
+	
+	
+		<select id="findslinfo" resultType="WmUserItem"  parameterType="wmUserItem">
+		SELECT * FROM wm_user_item a
+		<where>
+		  a.item_id = #{itemId}
+		</where>
+		 
+	</select>
+	
+	
+	<select id="findonebyitemidanduser" resultType="WmUserItem"  parameterType="wmUserItem">
+		SELECT * FROM wm_user_item a
+		<where>
+		  a.item_id = #{itemId} and a.user=#{user}
+		</where>
+		 
+	</select>
+	
+		<update id="updatefinish">
+		UPDATE wm_user_item SET 	
+		  is_finished=#{isFinished}
+		   
+		WHERE id = #{id}
+	</update>
+
+	
+	
+	
+</mapper>
