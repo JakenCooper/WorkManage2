@@ -257,7 +257,6 @@ public class WmTodoItemController extends BaseController {
 		    int m=calendar.get(Calendar.MONTH)+1; 
 		    int day=calendar.get(Calendar.DATE); 
 		 
-		    
 		model.addAttribute("ms", m);
 		
 		String idarr[]=null;
