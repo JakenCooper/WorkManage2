@@ -5,6 +5,8 @@ package com.thinkgem.jeesite.modules.duty.web;
 
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -235,13 +237,24 @@ public class WmOndutyController extends BaseController {
 	/*
 	 * 导出排班表
 	 * */
-	@RequiresPermissions("duty:wmOnduty:view")
     @RequestMapping(value = "exportFile", method=RequestMethod.POST)
     public String exportFile(WmOnduty wmOnduty, HttpServletRequest request, HttpServletResponse response, RedirectAttributes redirectAttributes) {
 		try {
             String fileName = "在线排班数据"+DateUtils.getDate("yyyyMMddHHmmss")+".xlsx";
-            Page<WmOnduty> page = wmOndutyService.findPage(new Page<WmOnduty>(request, response, -1), wmOnduty);
-    		new ExportExcel("在线排班数据", WmOnduty.class).setDataList(page.getList()).write(response, fileName).dispose();
+//            Page<WmOnduty> page = wmOndutyService.findPage(new Page<WmOnduty>(request, response, -1), wmOnduty);
+            WmOnduty duty1=new WmOnduty();
+    		duty1.setWmDesc("desc1");
+    		duty1.setDate("2018-05-24");
+    		duty1.setOndutyUser("zhangys");
+    		duty1.setLeader("jingli");
+    		WmOnduty duty2=new WmOnduty();
+    		duty2.setWmDesc("desc1");
+    		duty2.setDate("2018-05-24");
+    		duty2.setOndutyUser("zhangys");
+    		duty2.setLeader("jingli");
+    		List<WmOnduty> dutyList=new ArrayList<WmOnduty>();
+    		Collections.addAll(dutyList, duty1,duty2);
+    		new ExportExcel("在线排班数据", WmOnduty.class).setDataList(dutyList).write(response, fileName).dispose();
     		return null;
 		} catch (Exception e) {
 			addMessage(redirectAttributes, "导出排班数据失败！失败信息："+e.getMessage());

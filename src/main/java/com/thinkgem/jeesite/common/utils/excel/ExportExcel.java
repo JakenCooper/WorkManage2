@@ -3,12 +3,14 @@
  */
 package com.thinkgem.jeesite.common.utils.excel;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -38,6 +40,7 @@ import com.google.common.collect.Lists;
 import com.thinkgem.jeesite.common.utils.Encodes;
 import com.thinkgem.jeesite.common.utils.Reflections;
 import com.thinkgem.jeesite.common.utils.excel.annotation.ExcelField;
+import com.thinkgem.jeesite.modules.duty.entity.WmOnduty;
 import com.thinkgem.jeesite.modules.sys.utils.DictUtils;
 
 /**
@@ -484,5 +487,21 @@ public class ExportExcel {
 //		log.debug("Export success.");
 //		
 //	}
-
+	public static void main(String[] args) throws Exception {
+		WmOnduty duty1=new WmOnduty();
+		duty1.setWmDesc("desc1");
+		duty1.setDate("2018-05-24");
+		duty1.setOndutyUser("zhangys");
+		duty1.setLeader("jingli");
+		WmOnduty duty2=new WmOnduty();
+		duty2.setWmDesc("desc1");
+		duty2.setDate("2018-05-24");
+		duty2.setOndutyUser("zhangys");
+		duty2.setLeader("jingli");
+		List<WmOnduty> dutyList=new ArrayList<WmOnduty>();
+		Collections.addAll(dutyList, duty1,duty2);
+		File expfile=new File("e:/exptest/test1.xls");
+		expfile.createNewFile();
+		new ExportExcel("在线排班数据", WmOnduty.class).setDataList(dutyList).write(new FileOutputStream(expfile)).dispose();
+	}
 }

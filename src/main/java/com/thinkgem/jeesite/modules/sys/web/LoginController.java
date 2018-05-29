@@ -47,7 +47,7 @@ public class LoginController extends BaseController{
 	 */
 	@RequestMapping(value = "${adminPath}/login", method = RequestMethod.GET)
 	public String login(HttpServletRequest request, HttpServletResponse response, Model model) {
-		Principal principal = UserUtils.getPrincipal();
+		//Principal principal = UserUtils.getPrincipal();
 
 		// 默认页签模式
 		String tabmode = CookieUtils.getCookie(request, "tabmode");
@@ -65,9 +65,6 @@ public class LoginController extends BaseController{
 		}
 		
 		// 如果已经登录，则跳转到管理首页
-		if(principal != null && !principal.isMobileLogin()){
-			return "redirect:" + adminPath;
-		}
 //		String view;
 //		view = "/WEB-INF/views/modules/sys/sysLogin.jsp";
 //		view = "classpath:";
