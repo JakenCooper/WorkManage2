@@ -1,0 +1,20 @@
+OA User:
+zmxia 123456
+dzzwb210
+
+reading code------
+
+流程流转 
+	${pass==2}
+
+前端
+	fileupload.js WebUploader文件上传组件
+	selectNext.jsp 初始：stepList(bg)；selectNextPersonAudit 根据流程加载tree
+	submitReal
+	
+后端
+	LoginController getToken	(common)
+	beanValidator(..) (validation common)
+	先执行insert/update操作： dao.insert(commonlyText);
+	启动流程： String procInsId = actTaskService.startProcess(ActUtils.PD_COMMONLYTEXT_ALL[0],ActUtils.PD_COMMONLYTEXT_ALL[1],commonlyText.getId()); procType tableName businessId
+	启动流程之后直接完成第一个任务： actTaskService.completeFirstTask(procInsId, commonlyText.getAct().getComment(), content, vars);
